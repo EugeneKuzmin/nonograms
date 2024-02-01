@@ -1,0 +1,26 @@
+.grid {
+    display: grid;
+    grid-template-columns: repeat(7,1fr);
+    max-width: 10rem;
+}
+.cell {
+    min-height: 2rem;
+    border: 1px solid blueviolet;
+}
+.clue-cell {
+    min-height: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(243, 176, 234);
+    border: 1px solid blueviolet;
+}
+
+.empty-cell {
+    min-height: 2rem;
+}
+
+.picked-dark {
+    background-color: rgba(0, 0, 0, 0.695);
+
+}
