@@ -18,88 +18,101 @@ levelButtons = levelButtons.map(x=>{
 })
 
 levelButtons.forEach(btn=>{
-    btn.addEventListener('click',()=>{
+    btn.addEventListener('click',(e)=>{
         levelButtons.forEach(lvlButton=>{
             lvlButton.classList.remove('pushed')
         })
         btn.classList.add('pushed');
-        console.log(btn);
+
+        const currScheme = getScheme(e.target.innerText);
+        drawNonogram(currScheme)
+        
         // nonogramTemplates.filter(x=>)
     })
 })
 
+const gridLayout = document.createElement('div');
+
 const getScheme = (level) => {
-  headerNonogram = nonogramTemplates.filter(x=> x.level === level).topClues;
-  bodyNonogram = nonogramTemplates.filter(x=> x.level === level).body;
-  sideHeaderNonogram = nonogramTemplates.filter(x=> x.level === level).sideClues;
+  const headerNonogram = nonogramTemplates.find(x=> x.level === level).topClues;
+  const bodyNonogram = nonogramTemplates.find(x=> x.level === level).body;
+  const sideHeaderNonogram = nonogramTemplates.find(x=> x.level === level).sideClues;
+
+  return {header:headerNonogram,body:bodyNonogram,sideHeader:sideHeaderNonogram};
+}
+
+const drawNonogram = (scheme) => {
+
+  gridLayout.innerHTML = '';
+  gridLayout.removeAttribute('style')
+
+  let bodyNonogram = scheme.body;
+  let sideHeaderNonogram = scheme.sideHeader;
+  let headerNonogram = scheme.header;
+
+  gridLayout.classList.add('grid');
+  gridLayout.setAttribute('style', `grid-template-columns: repeat(${sideHeaderNonogram[0].length + headerNonogram[0].length},1fr);max-width: ${(sideHeaderNonogram[0].length + headerNonogram[0].length)*2}rem;`);
+  
+  const gridCells = [];
+  
+  bodyNonogram = bodyNonogram.map((row,i) => [[...sideHeaderNonogram[i]],[...row]])
+  const preHeader = Array.from(Array(sideHeaderNonogram[0].length)).fill(0)
+  headerNonogram = headerNonogram.map((row) => [[...preHeader],[...row]])
+  
+  
+  headerNonogram.forEach(row =>{
+      row[0].forEach(emptyCell=>{
+          const cellElement = document.createElement('div')
+          cellElement.classList.add('empty-cell')
+          gridLayout.appendChild(cellElement)
+      });
+  
+      row[1].forEach(headCell=>{
+          const cellElement = document.createElement('div')
+          cellElement.textContent = headCell
+          cellElement.classList.add('cell')
+          gridLayout.appendChild(cellElement)
+      });
+  
+      }
+  )
+  
+  
+  bodyNonogram.forEach((row,rowIndx) => {
+      row[0].forEach(clueCell=>{
+              const cellElement = document.createElement('div')
+              cellElement.textContent = clueCell
+              cellElement.classList.add('cell')
+              gridLayout.appendChild(cellElement)
+          });
+          row[1].forEach((headCell,colIndex)=>{
+              const cellElement = document.createElement('div')
+              cellElement.classList.add('clue-cell')
+              cellElement.setAttribute('data-position-row',rowIndx)
+              cellElement.setAttribute('data-position-col',colIndex)
+              cellElement.addEventListener('click',(e)=>
+  
+              {
+                      console.log('row',cellElement.getAttribute('data-position-row'))
+                      console.log('cpl',cellElement.getAttribute('data-position-col'))
+                      cellElement.classList.toggle('picked-dark')
+              })
+              gridCells.push(cellElement)
+              gridLayout.appendChild(cellElement)
+          })
+      }
+  );
 
 }
+
 fetch('./templates.json')
   .then((response) => response.json())
   .then((json) =>
   {
       nonogramTemplates = json
-      getScheme("Easy");
-      const gridLayout = document.createElement('div');
-const gridCells = []
+      const currScheme = getScheme("Easy");
+      drawNonogram(currScheme)
 
-bodyNonogram = bodyNonogram.map((row,i) => [[...sideHeaderNonogram[i]],[...row]])
-const preHeader = Array.from(Array(sideHeaderNonogram[0].length)).fill(0)
-headerNonogram = headerNonogram.map((row) => [[...preHeader],[...row]])
-
-gridLayout.classList.add('grid');
-// gridLayout.addEventListener('click',(e)=>{
-//     console.log(e);
-// })
-
-headerNonogram.forEach(row =>{
-    row[0].forEach(emptyCell=>{
-        const cellElement = document.createElement('div')
-        cellElement.classList.add('empty-cell')
-        gridLayout.appendChild(cellElement)
-    });
-
-    row[1].forEach(headCell=>{
-        const cellElement = document.createElement('div')
-        cellElement.textContent = headCell
-        
-        cellElement.classList.add('cell')
-        
-        gridLayout.appendChild(cellElement)
-    });
-
-    }
-)
-
-
-bodyNonogram.forEach((row,rowIndx) => {
-
-    row[0].forEach(clueCell=>{
-            const cellElement = document.createElement('div')
-            cellElement.textContent = clueCell
-            cellElement.classList.add('cell')
-            gridLayout.appendChild(cellElement)
-        });
-        row[1].forEach((headCell,colIndex)=>{
-            const cellElement = document.createElement('div')
-            cellElement.classList.add('clue-cell')
-            cellElement.setAttribute('data-position-row',rowIndx)
-            cellElement.setAttribute('data-position-col',colIndex)
-            cellElement.addEventListener('click',(e)=>
-
-            {
-                    
-                    console.log('row',cellElement.getAttribute('data-position-row'))
-                    console.log('cpl',cellElement.getAttribute('data-position-col'))
-                    cellElement.classList.toggle('picked-dark')
-
-            })
-            gridCells.push(cellElement)
-            gridLayout.appendChild(cellElement)
-        })
-    }
-        
-);
     document.body.appendChild(levelLayout)
     document.body.appendChild(gridLayout)
   }
