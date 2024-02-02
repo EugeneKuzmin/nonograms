@@ -3,6 +3,37 @@
     grid-template-columns: repeat(7,1fr);
     max-width: 10rem;
 }
+
+.flex {
+    display: flex;
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+.m-4 {
+    margin: 1rem;
+}
+
+.level-button {
+    padding: 0.5rem 1rem;
+    border-radius: 0.3rem;
+    border: 2px solid rgb(2, 115, 128);
+    color: rgb(66, 89, 241);
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.level-button:hover{
+    cursor: pointer;
+}
+
+.level-button.pushed{
+    background-color: rgb(5, 114, 141);
+    color: azure;
+}
+
 .cell {
     min-height: 2rem;
     border: 1px solid blueviolet;

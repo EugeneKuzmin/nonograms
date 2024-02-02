@@ -1,14 +1,46 @@
-let headerNonogram = [[0,1,0,0,0],[3,1,5,1,1]];
-let bodyNonogram = [];
-let sideHeaderNonogram = [[0,3],[0,1],[0,3],[1,1],[0,3]];
-bodyNonogram = [
-    [0,0,1,1,1],
-    [0,0,1,0,0],
-    [1,1,1,0,0],
-    [1,0,1,0,0],
-    [1,1,1,0,0],
-]
-const gridLayout = document.createElement('div');
+let nonogramTemplates = []
+// levels button
+const levelLayout = document.createElement('div');
+levelLayout.classList.add('flex');
+levelLayout.classList.add('gap-4');
+levelLayout.classList.add('m-4');
+
+let levelButtons = ['Easy','Medium','Hard']
+levelButtons = levelButtons.map(x=>{
+    const btn = document.createElement('button');
+    btn.classList.add('level-button');
+    btn.textContent = x;
+    if(x === 'Easy'){
+        btn.classList.add('pushed');
+    }
+    levelLayout.appendChild(btn);
+    return btn;
+})
+
+levelButtons.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        levelButtons.forEach(lvlButton=>{
+            lvlButton.classList.remove('pushed')
+        })
+        btn.classList.add('pushed');
+        console.log(btn);
+        // nonogramTemplates.filter(x=>)
+    })
+})
+
+const getScheme = (level) => {
+  headerNonogram = nonogramTemplates.filter(x=> x.level === level).topClues;
+  bodyNonogram = nonogramTemplates.filter(x=> x.level === level).body;
+  sideHeaderNonogram = nonogramTemplates.filter(x=> x.level === level).sideClues;
+
+}
+fetch('./templates.json')
+  .then((response) => response.json())
+  .then((json) =>
+  {
+      nonogramTemplates = json
+      getScheme("Easy");
+      const gridLayout = document.createElement('div');
 const gridCells = []
 
 bodyNonogram = bodyNonogram.map((row,i) => [[...sideHeaderNonogram[i]],[...row]])
@@ -68,4 +100,11 @@ bodyNonogram.forEach((row,rowIndx) => {
     }
         
 );
+    document.body.appendChild(levelLayout)
     document.body.appendChild(gridLayout)
+  }
+)
+
+
+
+
