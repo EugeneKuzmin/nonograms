@@ -17,6 +17,27 @@ levelButtons = levelButtons.map(x=>{
     return btn;
 })
 
+//************modal section************//
+
+const modal = document.createElement('dialog');
+const modalContent = document.createElement('div');
+modalContent.classList.add('p-4');
+const modalFooter = document.createElement('div');
+modalFooter.classList.add('flex');
+modalFooter.classList.add('justify-content-center');
+const modalClose = document.createElement('button');
+modalClose.classList.add('close-button');
+modalClose.innerText = 'Play again!'
+modalFooter.appendChild(modalClose);
+modal.appendChild(modalContent);
+modal.appendChild(modalFooter);
+modalClose.addEventListener('click',() => {
+  const currScheme = getScheme("Easy");
+  drawNonogram(currScheme)
+  modal.close();
+})
+
+
 levelButtons.forEach(btn=>{
     btn.addEventListener('click',(e)=>{
         levelButtons.forEach(lvlButton=>{
@@ -85,6 +106,8 @@ const drawHeaderBorderRight = (colIndx,sideLenght,cellElement,isEmpty) => {
   return cellElement
 }
 
+const arraysEqual = (array1, array2) => JSON.stringify(array1) === JSON.stringify(array2);
+
 const drawNonogram = (scheme) => {
 
   gridLayout.innerHTML = '';
@@ -99,15 +122,19 @@ const drawNonogram = (scheme) => {
   const headerLength = headerNonogram.length;
 
   gridLayout.classList.add('grid');
+  gridLayout.classList.add('shadow-dark');
   gridLayout.classList.add('border-nonogram-tbl');
+  gridLayout.classList.add('clr-yellow');
 
   gridLayout.setAttribute('style', `grid-template-columns: repeat(${sideLenght + bodyLength},1fr);max-width: ${(sideLenght + bodyLength)*2}rem;`);
   
   const gridCells = [];
   
-  bodyNonogram = bodyNonogram.map((row,i) => [[...sideHeaderNonogram[i]],[...row]])
+  const sideNBodyNonogram = bodyNonogram.map((row,i) => [[...sideHeaderNonogram[i]],[...row]])
   const preHeader = Array.from(Array(sideHeaderNonogram[0].length)).fill(0)
   headerNonogram = headerNonogram.map((row) => [[...preHeader],[...row]])
+
+  const gameZone = Array.from(Array(bodyLength)).map(x=>Array.from(Array(bodyLength)).fill(0))
   
   headerNonogram.forEach((row,rowIndx) =>{
       row[0].forEach((emptyCell,colIndx)=>{
@@ -131,7 +158,7 @@ const drawNonogram = (scheme) => {
       }
   )
   
-  bodyNonogram.forEach((row,rowIndx) => {
+  sideNBodyNonogram.forEach((row,rowIndx) => {
       row[0].forEach((clueCell,colIndx)=>{
           let cellElement = document.createElement('div');
           cellElement.textContent = clueCell;
@@ -153,7 +180,15 @@ const drawNonogram = (scheme) => {
 
           cellElement.addEventListener('click',(e)=>
           {
-                  cellElement.classList.toggle('picked-dark')
+            cellElement.classList.toggle('picked-dark')
+            const cellRowValue = cellElement.getAttribute("data-position-row");
+            const cellColValue = cellElement.getAttribute("data-position-col");
+            gameZone[cellRowValue][cellColValue] = gameZone[cellRowValue][cellColValue]?0:1;
+
+            if(arraysEqual(gameZone,bodyNonogram)){
+              modalContent.innerText = `Congrats!!! You win!`
+              modal.showModal();
+            }
           })
           gridCells.push(cellElement)
           gridLayout.appendChild(cellElement)
@@ -173,9 +208,6 @@ fetch('./templates.json')
 
     document.body.appendChild(levelLayout)
     document.body.appendChild(gridLayout)
+    document.body.appendChild(modal)
   }
 )
-
-
-
-
