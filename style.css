@@ -1,3 +1,28 @@
+/* ------------------- */
+/* Custom properties   */
+/* ------------------- */
+
+:root {
+    /* colors */
+    --clr-yellow: 50, 86%, 80%;
+    --clr-earth-terracot: 13, 69%, 63%;
+    --clr-dark-green: 172, 47%, 48%;
+    --clr-pink-ochre: 341, 31%, 66%;
+    --clr-bright-green: 170, 39%, 64%;
+
+    /* font-families */
+    --ff-inter: 'Inter', sans-serif;
+
+    /* size */
+    --size-1: 1px;
+    --size-2: 2px;
+    --size-3: 3px;
+}
+
+body {
+    background-color: hsl( var(--clr-bright-green) );
+}
+
 .grid {
     display: grid;
     
@@ -5,6 +30,30 @@
 
 .flex {
     display: flex;
+}
+
+.border-1 {
+    border-width: var(--size-1);
+}
+
+.border-right-1 {
+    border-right: hsl( var(--clr-dark-green) ) solid var(--size-1);
+}
+
+.border-bottom-1 {
+    border-bottom: hsl( var(--clr-dark-green) ) solid var(--size-1);
+}
+
+.border-right-2 {
+    border-right: hsl( var(--clr-dark-green) ) solid var(--size-2);
+}
+
+.border-bottom-2 {
+    border-bottom: hsl( var(--clr-dark-green) ) solid var(--size-2);
+}
+
+.border-nonogram-tbl {
+    border: hsl( var(--clr-dark-green) ) solid var(--size-3);
 }
 
 .gap-4 {
@@ -15,13 +64,17 @@
     margin: 1rem;
 }
 
+.min-height-2 {
+    min-height: 2rem;
+}
+
 .level-button {
-    padding: 0.5rem 1rem;
-    border-radius: 0.3rem;
-    border: 2px solid rgb(2, 115, 128);
-    color: rgb(66, 89, 241);
+    padding: 0.1rem 3rem;
+    color: rgb(207, 207, 207);
+    background-color: hsl( var(--clr-pink-ochre) );
     font-weight: 700;
     font-size: 1.2rem;
+    box-shadow: 0 0 0 2px rgba(218,102,123,1), 8px 8px 0 0 rgba(0,0,50,1);
 }
 
 .level-button:hover{
@@ -33,18 +86,26 @@
     color: azure;
 }
 
-.cell {
-    min-height: 2rem;
-    border: 1px solid blueviolet;
-}
 .clue-cell {
+    min-height: 2rem;
+}
+
+.first-left-clue-cell {
+    min-height: 2rem;
+    border-bottom: 1px solid hsl( var(--clr-dark-green));
+    border-right: 1px solid hsl( var(--clr-dark-green));
+}
+
+.cell {
     min-height: 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgb(243, 176, 234);
-    border: 1px solid blueviolet;
+    background-color: hsl( var(--clr-yellow));
+    border-bottom: 1px solid hsl( var(--clr-dark-green));
+    border-right: 1px solid hsl( var(--clr-dark-green));
 }
+
 
 .empty-cell {
     min-height: 2rem;
