@@ -1,65 +1,140 @@
 let nonogramTemplates = []
+let modal;
 // levels button
-const levelLayout = document.createElement('div');
-levelLayout.classList.add('flex');
-levelLayout.classList.add('gap-4');
-levelLayout.classList.add('m-4');
 
-let levelButtons = ['Easy','Medium','Hard']
-levelButtons = levelButtons.map(x=>{
-    const btn = document.createElement('button');
-    btn.classList.add('level-button');
-    btn.textContent = x;
-    if(x === 'Easy'){
-        btn.classList.add('pushed');
-    }
-    levelLayout.appendChild(btn);
-    return btn;
-})
-
-//************modal section************//
-
-const modal = document.createElement('dialog');
-const modalContent = document.createElement('div');
-modalContent.classList.add('p-4');
-const modalFooter = document.createElement('div');
-modalFooter.classList.add('flex');
-modalFooter.classList.add('justify-content-center');
-const modalClose = document.createElement('button');
-modalClose.classList.add('close-button');
-modalClose.innerText = 'Play again!'
-modalFooter.appendChild(modalClose);
-modal.appendChild(modalContent);
-modal.appendChild(modalFooter);
-modalClose.addEventListener('click',() => {
-  const currScheme = getScheme("Easy");
-  drawNonogram(currScheme)
-  modal.close();
-})
+const renderLevelButtons = () => {
+  const levelLayout = document.createElement('div');
+  levelLayout.classList.add('flex');
+  levelLayout.classList.add('gap-4');
+  levelLayout.classList.add('m-4');
 
 
-levelButtons.forEach(btn=>{
+  let levelButtons = ['Easy','Medium','Hard']
+  levelButtons = levelButtons.map(x=>{
+      const btn = document.createElement('button');
+      btn.classList.add('level-button');
+      
+      btn.textContent = x;
+      if(x === 'Easy'){
+          btn.classList.add('pushed');
+      }
+      levelLayout.appendChild(btn);
+      return btn;
+  })
+
+  levelButtons.forEach(btn=>{
     btn.addEventListener('click',(e)=>{
         levelButtons.forEach(lvlButton=>{
             lvlButton.classList.remove('pushed')
         })
         btn.classList.add('pushed');
+        const currScheme = getRandomeScheme(e.target.innerText);
+        drawNonogram(currScheme)
+        renderButtons(currScheme.buttonNames,currScheme.currNonogram);
 
-        const currScheme = getScheme(e.target.innerText);
+        // nonogramTemplates.filter(x=>)
+    })
+  })
+
+  return levelLayout
+
+}
+
+//************modal section************//
+
+const createModal = () => {
+  modal = document.createElement('dialog');
+  const modalContent = document.createElement('div');
+  modalContent.classList.add('p-4');
+  const modalFooter = document.createElement('div');
+  modalFooter.classList.add('flex');
+  modalFooter.classList.add('justify-content-center');
+  const modalClose = document.createElement('button');
+  modalClose.classList.add('close-button');
+  modalClose.innerText = 'Play again!'
+  modalFooter.appendChild(modalClose);
+  modal.appendChild(modalContent);
+  modal.appendChild(modalFooter);
+  modalClose.addEventListener('click',() => {
+    const currScheme = getRandomeScheme("Easy");
+    drawNonogram(currScheme)
+    modal.close();
+  })
+
+}
+
+
+// **********puzzle select buttons*****//
+
+
+
+const renderButtons = (buttons,pushedBtn) => {
+
+    let puzzleNameLayout = document.querySelector('[data-puzzle-names]');
+    puzzleNameLayout.innerHTML = '';
+
+    puzzleNameLayout.classList.add('flex');
+    puzzleNameLayout.classList.add('gap-4');
+    puzzleNameLayout.classList.add('m-4');
+
+  const puzzleButtons = buttons.map((x,indx)=>{
+      const btn = document.createElement('button');
+      btn.classList.add('level-button');
+      btn.textContent = x;
+      if(indx === pushedBtn){
+          btn.classList.add('pushed');
+      }
+      puzzleNameLayout.appendChild(btn);
+      return btn;
+  })
+  
+  puzzleButtons.forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      puzzleButtons.forEach(lvlButton=>{
+            lvlButton.classList.remove('pushed')
+        })
+        btn.classList.add('pushed');
+  
+        const currScheme = getSchemeByName(e.target.innerText);
+        console.log(document.body)
         drawNonogram(currScheme)
         
         // nonogramTemplates.filter(x=>)
     })
-})
+  })
 
-const gridLayout = document.createElement('div');
+  puzzleNameLayout.setAttribute('data-puzzle-names','')
 
-const getScheme = (level) => {
-  const headerNonogram = nonogramTemplates.find(x=> x.level === level).topClues;
-  const bodyNonogram = nonogramTemplates.find(x=> x.level === level).body;
-  const sideHeaderNonogram = nonogramTemplates.find(x=> x.level === level).sideClues;
+  return puzzleNameLayout;
+}
+
+const getRandomNumber = (range) => {
+  return Math.floor(Math.random() * range);
+}
+
+const getRandomeScheme = (level) => {
+
+  const levelArray = nonogramTemplates.filter(x=> x.level === level);
+  const indx = getRandomNumber(levelArray.length);
+  const buttonNames = levelArray.map(x=> x.name);
+  const headerNonogram = levelArray[indx].topClues;
+  const bodyNonogram = levelArray[indx].body;
+  const sideHeaderNonogram = levelArray[indx].sideClues;
+
+  return {header:headerNonogram,body:bodyNonogram,sideHeader:sideHeaderNonogram,buttonNames:buttonNames,currNonogram:indx};
+
+}
+
+const getSchemeByName = (name) => {
+  const nonogram = nonogramTemplates.find(x=> x.name === name);
+  
+  const headerNonogram = nonogram.topClues;
+  const bodyNonogram = nonogram.body;
+  const sideHeaderNonogram = nonogram.sideClues;
 
   return {header:headerNonogram,body:bodyNonogram,sideHeader:sideHeaderNonogram};
+  
+
 }
 
 const drawBorderBottom = (rowIndx,bodyLength,cellElement) => {
@@ -109,6 +184,8 @@ const drawHeaderBorderRight = (colIndx,sideLenght,cellElement,isEmpty) => {
 const arraysEqual = (array1, array2) => JSON.stringify(array1) === JSON.stringify(array2);
 
 const drawNonogram = (scheme) => {
+
+  let gridLayout = document.querySelector('[data-nonogram-grid]')
 
   gridLayout.innerHTML = '';
   gridLayout.removeAttribute('style')
@@ -196,6 +273,12 @@ const drawNonogram = (scheme) => {
       }
   );
 
+  return gridLayout;
+
+}
+
+const refreshRenderLayout = () => {
+
 }
 
 fetch('./templates.json')
@@ -203,11 +286,24 @@ fetch('./templates.json')
   .then((json) =>
   {
       nonogramTemplates = json
-      const currScheme = getScheme("Easy");
+      const currScheme = getRandomeScheme("Easy");
+      createModal()
+
+      const levelLayout = renderLevelButtons()
+      
+      document.body.appendChild(levelLayout);
+      const puzzleNameLayout = document.createElement('div');
+      puzzleNameLayout.setAttribute('data-puzzle-names','')
+      document.body.appendChild(puzzleNameLayout);
+      
+      renderButtons(currScheme.buttonNames,currScheme.currNonogram);
+
+      const gridLayout = document.createElement('div');
+      gridLayout.setAttribute('data-nonogram-grid','')
+      document.body.appendChild(gridLayout);
+
       drawNonogram(currScheme)
 
-    document.body.appendChild(levelLayout)
-    document.body.appendChild(gridLayout)
-    document.body.appendChild(modal)
+      document.body.appendChild(modal);
   }
 )
