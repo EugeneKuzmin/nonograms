@@ -2,11 +2,32 @@ let nonogramTemplates = []
 let modal;
 // levels button
 
+function setNavToggle(flag,navigation,dataNavToggle) {
+  navigation.setAttribute("data-visible", flag);
+  dataNavToggle.setAttribute('aria-expanded',flag)
+  }
+
 const renderLevelButtons = () => {
   const levelLayout = document.createElement('div');
   levelLayout.classList.add('flex');
   levelLayout.classList.add('gap-4');
   levelLayout.classList.add('m-4');
+  levelLayout.classList.add('menu');
+  
+  const navigation = document.createElement('nav');
+  navigation.classList.add('primary-navigation');
+  navigation.setAttribute('data-visible',true)
+
+  // <div class="menu">
+  //                   <nav class="primary-navigation" data-visible="false">
+  //                       <ul>
+  //                           <li class="link"><a href="#favourites_coffee">Favorite coffee</a></li>
+  //                           <li class="link"><a href="#about">About</a></li>
+  //                           <li class="link"><a href="#mobile_app">Mobile app</a></li>
+  //                           <li class="link"><a href="#footer">Contact us</a></li>
+  //                       </ul>
+  //                   </nav>
+  //               </div>
 
 
   let levelButtons = ['Easy','Medium','Hard']
@@ -18,9 +39,12 @@ const renderLevelButtons = () => {
       if(x === 'Easy'){
           btn.classList.add('pushed');
       }
-      levelLayout.appendChild(btn);
+      navigation.appendChild(btn);
       return btn;
   })
+
+  levelLayout.append(navigation)
+  
 
   levelButtons.forEach(btn=>{
     btn.addEventListener('click',(e)=>{
@@ -35,6 +59,44 @@ const renderLevelButtons = () => {
         // nonogramTemplates.filter(x=>)
     })
   })
+
+  const menuButtonContainer = document.createElement("div");
+  menuButtonContainer.classList.add('flex');
+  menuButtonContainer.classList.add('align-items-center');
+  menuButtonContainer.classList.add('menu-button');
+  
+  const menuButton = document.createElement("button");
+  menuButton.classList.add('button-burger');
+  menuButton.setAttribute('aria-expanded','false');
+
+  const hamburgerLines = document.createElement("div");
+  hamburgerLines.classList.add('hamburger-lines');
+  const lineTop = document.createElement("span");
+  lineTop.classList.add('line','line-top');
+  const lineBottom = document.createElement("span");
+  lineBottom.classList.add('line','line-bottom');
+  hamburgerLines.appendChild(lineTop);
+  hamburgerLines.appendChild(lineBottom);
+  menuButtonContainer.appendChild(menuButton);
+  menuButtonContainer.appendChild(hamburgerLines);
+
+  levelLayout.appendChild(menuButtonContainer)
+
+  menuButton.addEventListener('click',() => {
+        let fl = menuButton.getAttribute('aria-expanded') === 'true'?false:true;
+        setNavToggle(fl,navigation,menuButton)
+    })
+
+
+  // <div class="flex align-items-center menu-button" >
+  //                   <button type="button" data-nav-toggle class="button-burger" aria-expanded="false">
+                        
+  //                       <div class="hamburger-lines">
+  //                           <span class="line line-top"></span>
+  //                           <span class="line line-bottom"></span>
+  //                         </div>  
+  //                   </button>
+  //               </div>
 
   return levelLayout
 
