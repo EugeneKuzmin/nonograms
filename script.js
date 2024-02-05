@@ -8,6 +8,7 @@ function setNavToggle(flag,navigation,dataNavToggle) {
   }
 
 const renderLevelButtons = () => {
+ 
   const levelLayout = document.createElement('div');
   levelLayout.classList.add('flex');
   levelLayout.classList.add('gap-4');
@@ -18,29 +19,54 @@ const renderLevelButtons = () => {
   navigation.classList.add('primary-navigation');
   navigation.setAttribute('data-visible',true)
 
-  // <div class="menu">
-  //                   <nav class="primary-navigation" data-visible="false">
-  //                       <ul>
-  //                           <li class="link"><a href="#favourites_coffee">Favorite coffee</a></li>
-  //                           <li class="link"><a href="#about">About</a></li>
-  //                           <li class="link"><a href="#mobile_app">Mobile app</a></li>
-  //                           <li class="link"><a href="#footer">Contact us</a></li>
-  //                       </ul>
-  //                   </nav>
-  //               </div>
-
-
   let levelButtons = ['Easy','Medium','Hard']
-  levelButtons = levelButtons.map(x=>{
-      const btn = document.createElement('button');
-      btn.classList.add('level-button');
-      
-      btn.textContent = x;
-      if(x === 'Easy'){
-          btn.classList.add('pushed');
+  levelButtons = levelButtons.map(levelName=>{
+
+    const menuItem = document.createElement('div');
+
+    const subMenuItems = document.createElement('div');
+
+    const chevronRight = document.createElement('img');
+    chevronRight.classList.add('chevron')
+    chevronRight.src = './assets/right-chevron.svg';
+    chevronRight.alt = 'open items';
+    chevronRight.setAttribute('data-item-extended','false');
+    chevronRight.setAttribute('data-name',levelName);
+    chevronRight.classList.add('menu-toggle');
+
+    chevronRight.addEventListener('click',()=>{
+      const chevExtended = chevronRight.getAttribute('data-item-extended');
+      if(chevExtended === 'true'){
+        puzzleNameLayout = document.querySelector('[data-puzzle-names]');
+        puzzleNameLayout.innerHTML = '';
+        chevronRight.setAttribute('data-item-extended','false');
+      }else{
+        chevronRight.setAttribute('data-item-extended','true');
+        const currScheme = getRandomeScheme(chevronRight.getAttribute('data-name'));
+          drawNonogram(currScheme)
+          renderButtons(currScheme.buttonNames,currScheme.currNonogram,subMenuItems);
       }
-      navigation.appendChild(btn);
-      return btn;
+
+    })
+
+    const btn = document.createElement('button');
+    btn.classList.add('level-button');
+    
+    const btnText = document.createElement('span');
+    btnText.textContent = levelName;
+
+    btn.append(chevronRight);
+    btn.append(btnText);
+
+    if(levelName === 'Easy'){
+        btn.classList.add('pushed');
+    }
+
+
+    menuItem.appendChild(btn);
+    menuItem.appendChild(subMenuItems);
+    navigation.appendChild(menuItem);
+    return btn;
   })
 
   levelLayout.append(navigation)
@@ -130,14 +156,18 @@ const createModal = () => {
 
 
 
-const renderButtons = (buttons,pushedBtn) => {
+const renderButtons = (buttons,pushedBtn,dom=null) => {
+  let puzzleNameLayout
+  
+  puzzleNameLayout = document.querySelector('[data-puzzle-names]');
+  puzzleNameLayout.innerHTML = '';
+  if(dom){
+    puzzleNameLayout = dom
+  }
 
-    let puzzleNameLayout = document.querySelector('[data-puzzle-names]');
-    puzzleNameLayout.innerHTML = '';
 
-    puzzleNameLayout.classList.add('flex');
-    puzzleNameLayout.classList.add('gap-4');
-    puzzleNameLayout.classList.add('m-4');
+  puzzleNameLayout.classList.add('flex','gap-4','m-4');
+  puzzleNameLayout.classList.add('puzzle-names');
 
   const puzzleButtons = buttons.map((x,indx)=>{
       const btn = document.createElement('button');

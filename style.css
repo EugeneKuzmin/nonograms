@@ -92,7 +92,9 @@ body {
 }
 
 .level-button {
-    padding: 0.6rem 4rem;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 2.5rem 0.5rem 0.8rem;
     color: rgba(255, 255, 255, 0.964);
     border: none;
     background-color: hsl( var(--clr-pink-ochre) );
@@ -123,6 +125,9 @@ body {
     background-color: rgba(0, 0, 0, 0.695);
 
 }
+
+
+/***************menu***************/
 
 .button-burger
  {
@@ -185,6 +190,23 @@ body {
     transform: rotate(-45deg) ;
   }
 
+  .menu-toggle[data-item-extended="true"]{
+    transform: rotate(90deg);
+    transition: transform 0.4s ease-in-out;
+    
+  }
+
+  .menu-toggle[data-item-extended="false"]{
+    transform: rotate(0);
+    transition: transform 0.4s ease-in-out;
+  }
+
+  .chevron {
+    width: 2rem;
+    margin-right: 0.5rem;
+
+  }
+
 @media (min-width:769px) {
     .menu-button {
         display: none;
@@ -210,5 +232,9 @@ body {
 
     .primary-navigation[data-visible="true"]{
         transform: translateX(0);
+    }
+
+    .puzzle-names {
+        flex-direction: column;
     }
 }
