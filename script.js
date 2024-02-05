@@ -2,6 +2,8 @@ let nonogramTemplates = []
 let modal;
 // levels button
 
+
+
 function setNavToggle(flag,navigation,dataNavToggle) {
   navigation.setAttribute("data-visible", flag);
   dataNavToggle.setAttribute('aria-expanded',flag)
@@ -10,14 +12,11 @@ function setNavToggle(flag,navigation,dataNavToggle) {
 const renderLevelButtons = () => {
  
   const levelLayout = document.createElement('div');
-  levelLayout.classList.add('flex');
-  levelLayout.classList.add('gap-4');
-  levelLayout.classList.add('m-4');
   levelLayout.classList.add('menu');
   
   const navigation = document.createElement('nav');
-  navigation.classList.add('primary-navigation');
-  navigation.setAttribute('data-visible',true)
+  navigation.classList.add('primary-navigation','gap-4','m-4');
+  navigation.setAttribute('data-visible',false)
 
   let levelButtons = ['Easy','Medium','Hard']
   levelButtons = levelButtons.map(levelName=>{
@@ -25,6 +24,7 @@ const renderLevelButtons = () => {
     const menuItem = document.createElement('div');
 
     const subMenuItems = document.createElement('div');
+    subMenuItems.classList.add('submenu');
 
     const chevronRight = document.createElement('img');
     chevronRight.classList.add('chevron')
@@ -36,15 +36,23 @@ const renderLevelButtons = () => {
 
     chevronRight.addEventListener('click',()=>{
       const chevExtended = chevronRight.getAttribute('data-item-extended');
+
       if(chevExtended === 'true'){
         puzzleNameLayout = document.querySelector('[data-puzzle-names]');
         puzzleNameLayout.innerHTML = '';
         chevronRight.setAttribute('data-item-extended','false');
       }else{
+        document.querySelectorAll('[data-item-extended]').forEach(chevBtn=>chevBtn.setAttribute('data-item-extended','false'))
         chevronRight.setAttribute('data-item-extended','true');
         const currScheme = getRandomeScheme(chevronRight.getAttribute('data-name'));
-          drawNonogram(currScheme)
+        drawNonogram(currScheme)
+        if(window.innerWidth < 769){
           renderButtons(currScheme.buttonNames,currScheme.currNonogram,subMenuItems);
+          
+        }else{
+          renderButtons(currScheme.buttonNames,currScheme.currNonogram);
+        }
+        
       }
 
     })
@@ -61,7 +69,6 @@ const renderLevelButtons = () => {
     if(levelName === 'Easy'){
         btn.classList.add('pushed');
     }
-
 
     menuItem.appendChild(btn);
     menuItem.appendChild(subMenuItems);
@@ -82,15 +89,12 @@ const renderLevelButtons = () => {
         drawNonogram(currScheme)
         renderButtons(currScheme.buttonNames,currScheme.currNonogram);
 
-        // nonogramTemplates.filter(x=>)
     })
   })
 
   const menuButtonContainer = document.createElement("div");
-  menuButtonContainer.classList.add('flex');
-  menuButtonContainer.classList.add('align-items-center');
-  menuButtonContainer.classList.add('menu-button');
-  
+  menuButtonContainer.classList.add('flex','menu-button','justify-content-end','mt-6','mr-4');
+
   const menuButton = document.createElement("button");
   menuButton.classList.add('button-burger');
   menuButton.setAttribute('aria-expanded','false');
@@ -103,8 +107,8 @@ const renderLevelButtons = () => {
   lineBottom.classList.add('line','line-bottom');
   hamburgerLines.appendChild(lineTop);
   hamburgerLines.appendChild(lineBottom);
+  menuButton.appendChild(hamburgerLines);
   menuButtonContainer.appendChild(menuButton);
-  menuButtonContainer.appendChild(hamburgerLines);
 
   levelLayout.appendChild(menuButtonContainer)
 
@@ -113,16 +117,6 @@ const renderLevelButtons = () => {
         setNavToggle(fl,navigation,menuButton)
     })
 
-
-  // <div class="flex align-items-center menu-button" >
-  //                   <button type="button" data-nav-toggle class="button-burger" aria-expanded="false">
-                        
-  //                       <div class="hamburger-lines">
-  //                           <span class="line line-top"></span>
-  //                           <span class="line line-bottom"></span>
-  //                         </div>  
-  //                   </button>
-  //               </div>
 
   return levelLayout
 
@@ -133,6 +127,7 @@ const renderLevelButtons = () => {
 const createModal = () => {
   modal = document.createElement('dialog');
   const modalContent = document.createElement('div');
+  modalContent.setAttribute('data-modal','');
   modalContent.classList.add('p-4');
   const modalFooter = document.createElement('div');
   modalFooter.classList.add('flex');
@@ -146,8 +141,10 @@ const createModal = () => {
   modalClose.addEventListener('click',() => {
     const currScheme = getRandomeScheme("Easy");
     drawNonogram(currScheme)
+    initTimer();
     modal.close();
   })
+  return modal;
 
 }
 
@@ -199,6 +196,33 @@ const renderButtons = (buttons,pushedBtn,dom=null) => {
 
   return puzzleNameLayout;
 }
+
+// ****************timer**********************//
+
+let timer;
+let secondDuration;
+
+const initTimer = () => {
+  const timerLayout = document.querySelector('[data-timer]');
+  timerLayout.classList.add('timer')
+  timerLayout.innerHTML = '00:00';
+}
+
+function startTimer(){
+  const timerLayout = document.querySelector('[data-timer]')
+  secondDuration = 1;
+  timer = setInterval(()=>{
+    timerLayout.innerHTML = '00:'+secondDuration;
+    timerLayout.innerHTML = `0${Math.floor(secondDuration / 60)}`.slice(-2) + ":" + `0${Math.floor(secondDuration % 60)}`.slice(-2);
+    secondDuration += 1;
+  }, 1000)
+}
+
+function stopTimer(){
+  clearInterval(timer);
+}
+
+// ****************nonogram**********************//
 
 const getRandomNumber = (range) => {
   return Math.floor(Math.random() * range);
@@ -354,10 +378,19 @@ const drawNonogram = (scheme) => {
             const cellColValue = cellElement.getAttribute("data-position-col");
             gameZone[cellRowValue][cellColValue] = gameZone[cellRowValue][cellColValue]?0:1;
 
+            if(!secondDuration){
+              startTimer();
+            }
+
             if(arraysEqual(gameZone,bodyNonogram)){
-              modalContent.innerText = `Congrats!!! You win!`
+              stopTimer();
+
+              modal.querySelector('[data-modal]').innerText = `Great! You have solved the nonogram in ${secondDuration-1} seconds!`
+              secondDuration = 0;
+              
               modal.showModal();
             }
+            
           })
           gridCells.push(cellElement)
           gridLayout.appendChild(cellElement)
@@ -369,29 +402,36 @@ const drawNonogram = (scheme) => {
 
 }
 
-const refreshRenderLayout = () => {
-
-}
-
 fetch('./templates.json')
   .then((response) => response.json())
   .then((json) =>
   {
       nonogramTemplates = json
       const currScheme = getRandomeScheme("Easy");
-      createModal()
+      createModal();
 
-      const levelLayout = renderLevelButtons()
+      // *****level buttons*****//
       
+      const levelLayout = renderLevelButtons()
       document.body.appendChild(levelLayout);
+      
+      // *****nonogram's name buttons*****//
+
       const puzzleNameLayout = document.createElement('div');
       puzzleNameLayout.setAttribute('data-puzzle-names','')
       document.body.appendChild(puzzleNameLayout);
-      
-      renderButtons(currScheme.buttonNames,currScheme.currNonogram);
+
+      // *****timer*****//
+
+      const timerLayout = document.createElement('div');
+      timerLayout.setAttribute('data-timer','');
+      document.body.appendChild(timerLayout);
+      initTimer();
+
+      // *****nonogram*****//
 
       const gridLayout = document.createElement('div');
-      gridLayout.setAttribute('data-nonogram-grid','')
+      gridLayout.setAttribute('data-nonogram-grid','');
       document.body.appendChild(gridLayout);
 
       drawNonogram(currScheme)
@@ -399,3 +439,4 @@ fetch('./templates.json')
       document.body.appendChild(modal);
   }
 )
+
