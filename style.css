@@ -13,6 +13,7 @@
 
     /* font-families */
     --ff-chakra: 'Chakra Petch', sans-serif;
+    --ff-roboto: 'Roboto', sans-serif;
 
     /* size */
     --size-1: 1px;
@@ -30,6 +31,7 @@
 body {
     background-color: hsl( var(--clr-bright-green) );
     margin: 0;
+    font-family: var(--ff-roboto);
 }
 
 .grid {
@@ -72,6 +74,22 @@ body {
     border: hsl( var(--clr-dark) ) solid var(--size-3);
 }
 
+.side-cell-placement {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    padding-right: 0.2rem;
+}
+
+.header-cell-placement {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+}
+
+
+/* colors */
+
 .clr-yellow {
     background-color: hsl( var(--clr-yellow) );
 }
@@ -79,6 +97,8 @@ body {
 .shadow-dark {
     box-shadow:  8px 8px 0 0 hsl( var(--clr-dark) );
 }
+
+/* spacing */
 
 .gap-4 {
     gap: 1rem;
@@ -104,16 +124,34 @@ body {
     min-height: 2rem;
 }
 
+.grid-cell {
+    aspect-ratio: 1;
+}
+
 .level-button {
     display: flex;
     align-items: center;
     padding: 0.5rem 2.5rem 0.5rem 0.8rem;
     color: rgba(255, 255, 255, 0.964);
     border: none;
+}
+
+.root-button {
     background-color: hsl( var(--clr-pink-ochre) );
+    padding: 0.5rem 2.5rem 0.5rem 0.8rem;
     font-weight: 700;
     font-size: 1.2rem;
     box-shadow:  8px 8px 0 0 hsl( var(--clr-dark) );
+    
+}
+
+.puzzle-button {
+    background-color: hsl( var(--clr-dark-green) );
+    padding: 0.5rem 7rem 0.5rem 0.8rem;
+    font-weight: 500;
+    font-size: 1rem;
+    box-shadow:  4px 4px 0 0 hsl( var(--clr-dark) );
+
 }
 
 .level-button:hover{
@@ -256,9 +294,12 @@ body {
 
 /* *******timer*********** */
 .timer {
+    display: flex;
+    justify-content: center;
     font-size: 2rem;
     font-family: var(--ff-chakra);
     padding: 0.5rem 2rem;
     color: white;
+
 
 }

@@ -1,7 +1,7 @@
 let nonogramTemplates = []
 let modal;
-// levels button
 
+// levels button
 
 
 function setNavToggle(flag,navigation,dataNavToggle) {
@@ -34,41 +34,16 @@ const renderLevelButtons = () => {
     chevronRight.setAttribute('data-name',levelName);
     chevronRight.classList.add('menu-toggle');
 
-    chevronRight.addEventListener('click',()=>{
-      const chevExtended = chevronRight.getAttribute('data-item-extended');
-
-      if(chevExtended === 'true'){
-        puzzleNameLayout = document.querySelector('[data-puzzle-names]');
-        puzzleNameLayout.innerHTML = '';
-        chevronRight.setAttribute('data-item-extended','false');
-      }else{
-        document.querySelectorAll('[data-item-extended]').forEach(chevBtn=>chevBtn.setAttribute('data-item-extended','false'))
-        chevronRight.setAttribute('data-item-extended','true');
-        const currScheme = getRandomeScheme(chevronRight.getAttribute('data-name'));
-        drawNonogram(currScheme)
-        if(window.innerWidth < 769){
-          renderButtons(currScheme.buttonNames,currScheme.currNonogram,subMenuItems);
-          
-        }else{
-          renderButtons(currScheme.buttonNames,currScheme.currNonogram);
-        }
-        
-      }
-
-    })
+    
 
     const btn = document.createElement('button');
-    btn.classList.add('level-button');
+    btn.classList.add('level-button','root-button');
     
     const btnText = document.createElement('span');
     btnText.textContent = levelName;
 
     btn.append(chevronRight);
     btn.append(btnText);
-
-    if(levelName === 'Easy'){
-        btn.classList.add('pushed');
-    }
 
     menuItem.appendChild(btn);
     menuItem.appendChild(subMenuItems);
@@ -81,13 +56,30 @@ const renderLevelButtons = () => {
 
   levelButtons.forEach(btn=>{
     btn.addEventListener('click',(e)=>{
-        levelButtons.forEach(lvlButton=>{
-            lvlButton.classList.remove('pushed')
+
+      const chevronRight = btn.querySelector('.chevron');
+
+      const chevExtended = chevronRight.getAttribute('data-item-extended');
+
+      if(chevExtended === 'true'){
+        const subMenuAll = document.querySelectorAll('.submenu');
+        subMenuAll.forEach(subMenu=>{
+          subMenu.innerHTML = ''
+          subMenu.classList.remove('m-4');
         })
-        btn.classList.add('pushed');
-        const currScheme = getRandomeScheme(e.target.innerText);
+        chevronRight.setAttribute('data-item-extended','false');
+      }else{
+        document.querySelectorAll('[data-item-extended]').forEach(chevBtn=>chevBtn.setAttribute('data-item-extended','false'))
+        chevronRight.setAttribute('data-item-extended','true');
+        const currScheme = getRandomeScheme(chevronRight.getAttribute('data-name'));
         drawNonogram(currScheme)
-        renderButtons(currScheme.buttonNames,currScheme.currNonogram);
+        if(window.innerWidth < 769){
+          const subMenuItems = btn.parentNode.querySelector('.submenu');
+          renderButtons(currScheme.buttonNames,currScheme.currNonogram,subMenuItems);
+        }else{
+          renderButtons(currScheme.buttonNames,currScheme.currNonogram);
+        }
+      }
 
     })
   })
@@ -134,7 +126,7 @@ const createModal = () => {
   modalFooter.classList.add('justify-content-center');
   const modalClose = document.createElement('button');
   modalClose.classList.add('close-button');
-  modalClose.innerText = 'Play again!'
+  modalClose.innerText = 'Close!'
   modalFooter.appendChild(modalClose);
   modal.appendChild(modalContent);
   modal.appendChild(modalFooter);
@@ -168,7 +160,7 @@ const renderButtons = (buttons,pushedBtn,dom=null) => {
 
   const puzzleButtons = buttons.map((x,indx)=>{
       const btn = document.createElement('button');
-      btn.classList.add('level-button');
+      btn.classList.add('level-button','puzzle-button');
       btn.textContent = x;
       if(indx === pushedBtn){
           btn.classList.add('pushed');
@@ -185,7 +177,6 @@ const renderButtons = (buttons,pushedBtn,dom=null) => {
         btn.classList.add('pushed');
   
         const currScheme = getSchemeByName(e.target.innerText);
-        console.log(document.body)
         drawNonogram(currScheme)
         
         // nonogramTemplates.filter(x=>)
@@ -332,6 +323,8 @@ const drawNonogram = (scheme) => {
   headerNonogram.forEach((row,rowIndx) =>{
       row[0].forEach((emptyCell,colIndx)=>{
           let cellElement = document.createElement('div')
+          cellElement.classList.add('max-height-2')
+          
           cellElement = drawHeaderBorderRight(colIndx,sideLenght,cellElement,false);
           cellElement = drawHeaderBorderBottom(rowIndx,headerLength,cellElement,false);
           gridLayout.appendChild(cellElement)
@@ -339,11 +332,12 @@ const drawNonogram = (scheme) => {
   
       row[1].forEach((headCell,colIndx)=>{
           let cellElement = document.createElement('div')
-          cellElement.textContent = headCell
+          cellElement.textContent = headCell === 0?'':headCell;
           cellElement.classList.add('min-height-2')
+          cellElement.classList.add('header-cell-placement');
 
           cellElement = drawBorderRight(colIndx,bodyLength,cellElement);
-          cellElement = drawHeaderBorderBottom(rowIndx,headerLength,cellElement,true);
+          cellElement = drawHeaderBorderBottom(rowIndx,headerLength,cellElement,false);
 
           gridLayout.appendChild(cellElement)
       });
@@ -354,9 +348,10 @@ const drawNonogram = (scheme) => {
   sideNBodyNonogram.forEach((row,rowIndx) => {
       row[0].forEach((clueCell,colIndx)=>{
           let cellElement = document.createElement('div');
-          cellElement.textContent = clueCell;
+          cellElement.textContent = clueCell === 0?'':clueCell;
+          cellElement.classList.add('side-cell-placement');
 
-          cellElement = drawHeaderBorderRight(colIndx,sideLenght,cellElement,true);
+          cellElement = drawHeaderBorderRight(colIndx,sideLenght,cellElement,false);
           cellElement = drawBorderBottom(rowIndx,bodyLength,cellElement);
 
           gridLayout.appendChild(cellElement)
@@ -364,6 +359,7 @@ const drawNonogram = (scheme) => {
       row[1].forEach((headCell,colIndx)=>{
           let cellElement = document.createElement('div')
           cellElement.classList.add('min-height-2')
+          cellElement.classList.add('grid-cell')
 
           cellElement = drawBorderRight(colIndx,bodyLength,cellElement);
           cellElement = drawBorderBottom(rowIndx,bodyLength,cellElement);
@@ -377,6 +373,11 @@ const drawNonogram = (scheme) => {
             const cellRowValue = cellElement.getAttribute("data-position-row");
             const cellColValue = cellElement.getAttribute("data-position-col");
             gameZone[cellRowValue][cellColValue] = gameZone[cellRowValue][cellColValue]?0:1;
+            const hitSound = new Audio("./assets/tap.mp3");
+            hitSound.volume = .33;
+            hitSound.play();
+
+            
 
             if(!secondDuration){
               startTimer();
@@ -394,6 +395,7 @@ const drawNonogram = (scheme) => {
           })
           gridCells.push(cellElement)
           gridLayout.appendChild(cellElement)
+
       })
       }
   );
@@ -430,9 +432,13 @@ fetch('./templates.json')
 
       // *****nonogram*****//
 
+      const gridContainer = document.createElement('div');
+      gridContainer.classList.add('flex','justify-content-center');
       const gridLayout = document.createElement('div');
       gridLayout.setAttribute('data-nonogram-grid','');
-      document.body.appendChild(gridLayout);
+
+      gridContainer.append(gridLayout);
+      document.body.appendChild(gridContainer);
 
       drawNonogram(currScheme)
 
