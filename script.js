@@ -50,6 +50,7 @@ const renderLevelButtons = () => {
   })
 
   const randomButton = document.createElement('button');
+  const randomButtonContainer = document.createElement('div');
   randomButton.classList.add('level-button','root-button');
   randomButton.textContent = 'Random game'
   randomButton.addEventListener('click',()=>{
@@ -60,7 +61,8 @@ const renderLevelButtons = () => {
   })
 
 
-  navigation.append(randomButton)
+  randomButtonContainer.append(randomButton)
+  navigation.append(randomButtonContainer)
   levelLayout.append(navigation)
   
 
@@ -162,7 +164,7 @@ const renderButtons = (buttons,dom=null) => {
   }
 
 
-  puzzleNameLayout.classList.add('flex','gap-4','m-4');
+  puzzleNameLayout.classList.add('flex','gap-4','m-4','flex-wrap');
   puzzleNameLayout.classList.add('puzzle-names');
 
   const puzzleButtons = buttons.map((x)=>{
