@@ -369,6 +369,10 @@ const drawNonogram = (scheme) => {
 
           cellElement.addEventListener('click',(e)=>
           {
+            const fImg = cellElement.querySelector('.cross-pic')
+            if(fImg){
+              cellElement.innerHTML = ''
+            }
             cellElement.classList.toggle('picked-dark')
             const cellRowValue = cellElement.getAttribute("data-position-row");
             const cellColValue = cellElement.getAttribute("data-position-col");
@@ -393,6 +397,25 @@ const drawNonogram = (scheme) => {
             }
             
           })
+
+          cellElement.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+              cellElement.classList.remove('picked-dark')
+            const fImg = cellElement.querySelector('.cross-pic')
+            if(fImg){
+              cellElement.innerHTML = ''
+
+            }else{
+              const crossCrs = document.createElement('img');
+              crossCrs.classList.add('cross-pic');
+              crossCrs.src = './assets/cross-small.svg'
+              crossCrs.alt = 'crossed out'
+              cellElement.append(crossCrs)
+              
+              cellElement.classList.toggle('crossed-cell');
+
+            }
+        }, false);
           gridCells.push(cellElement)
           gridLayout.appendChild(cellElement)
 
