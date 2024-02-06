@@ -1,5 +1,6 @@
 let nonogramTemplates = []
 let modal;
+let selectedPuzzle;
 
 // levels button
 
@@ -7,6 +8,17 @@ let modal;
 function setNavToggle(flag,navigation,dataNavToggle) {
   navigation.setAttribute("data-visible", flag);
   dataNavToggle.setAttribute('aria-expanded',flag)
+  }
+
+  const cleanPuzzleButtonsDom = () => {
+    const subMenuAll = document.querySelectorAll('.submenu');
+    subMenuAll.forEach(subMenu=>{
+      subMenu.innerHTML = ''
+      subMenu.classList.remove('m-4');
+    })
+    const puzzleNameLayout = document.querySelector('[data-puzzle-names]');
+    puzzleNameLayout.innerHTML = ''
+    puzzleNameLayout.classList.remove('m-4');
   }
 
 const renderLevelButtons = () => {
@@ -73,23 +85,17 @@ const renderLevelButtons = () => {
 
       const chevExtended = chevronRight.getAttribute('data-item-extended');
 
+      cleanPuzzleButtonsDom();
+
       if(chevExtended === 'true'){
-        const subMenuAll = document.querySelectorAll('.submenu');
-        subMenuAll.forEach(subMenu=>{
-          subMenu.innerHTML = ''
-          subMenu.classList.remove('m-4');
-        })
+        
         chevronRight.setAttribute('data-item-extended','false');
       }else{
         document.querySelectorAll('[data-item-extended]').forEach(chevBtn=>chevBtn.setAttribute('data-item-extended','false'))
         chevronRight.setAttribute('data-item-extended','true');
         const currScheme = getRandomScheme(chevronRight.getAttribute('data-name'));
-        if(window.innerWidth < 769){
-          const subMenuItems = btn.parentNode.querySelector('.submenu');
-          renderButtons(currScheme.buttonNames,subMenuItems);
-        }else{
-          renderButtons(currScheme.buttonNames);
-        }
+        
+        renderButtons(currScheme.buttonNames,btn);
       }
 
     })
@@ -116,13 +122,109 @@ const renderLevelButtons = () => {
   levelLayout.appendChild(menuButtonContainer)
 
   menuButton.addEventListener('click',() => {
-        let fl = menuButton.getAttribute('aria-expanded') === 'true'?false:true;
-        setNavToggle(fl,navigation,menuButton)
-    })
+    let fl = menuButton.getAttribute('aria-expanded') === 'true'?false:true;
+    setNavToggle(fl,navigation,menuButton)
+    if(!fl){
+      setTimeout(() => {
+        cleanPuzzleButtonsDom();
+        document.querySelectorAll('[data-item-extended]').forEach(chevBtn=>chevBtn.setAttribute('data-item-extended','false'))
+        
+      }, 500);
+    }else{
+      cleanPuzzleButtonsDom();
+      document.querySelectorAll('[data-item-extended]').forEach(chevBtn=>chevBtn.setAttribute('data-item-extended','false'))
+      
+    }
+  })
 
 
   return levelLayout
 
+}
+
+// **********puzzle select buttons*****//
+
+const renderButtons = (buttons,levelButton) => {
+
+  // input into two different DOMS
+  
+  const puzzleNameLayout = document.querySelector('[data-puzzle-names]');
+  puzzleNameLayout.classList.add('flex','gap-4','m-4','flex-wrap');
+  puzzleNameLayout.classList.add('puzzle-name-buttons');
+  
+  const subMenu = levelButton.parentNode.querySelector('.submenu');
+  subMenu.classList.add('flex','gap-2','m-4','flex-column');
+
+  const puzzleButtons = buttons.map((x)=>{
+
+    // for desktop DOM 
+      const btn = document.createElement('button');
+      btn.classList.add('level-button','puzzle-button');
+      btn.textContent = x;
+      puzzleNameLayout.appendChild(btn);
+      return btn;
+
+  })
+
+  const puzzleMenuButtons = buttons.map((x)=>{
+
+      // for mobile DOM
+      const btnMobile = document.createElement('button');
+      btnMobile.classList.add('level-button','puzzle-button');
+      btnMobile.textContent = x;
+      subMenu.appendChild(btnMobile);
+      return btnMobile;
+  })
+
+  const cleanPushedButtonMarkup = () => {
+    puzzleButtons.forEach(lvlButton=>{
+      lvlButton.classList.remove('pushed')
+    })
+    puzzleMenuButtons.forEach(lvlButton=>{
+      lvlButton.classList.remove('pushed')
+    })
+
+  }
+  
+  puzzleButtons.forEach((btn,indx)=>{
+    btn.addEventListener('click',(e)=>{
+
+      cleanPushedButtonMarkup();
+      
+      btn.classList.add('pushed');
+      puzzleMenuButtons[indx].classList.add('pushed');
+      selectedPuzzle = indx
+      initTimer();
+      secondDuration = 0;
+      const currScheme = getSchemeByName(e.target.innerText);
+      drawNonogram(currScheme)
+        
+    })
+  })
+
+  puzzleMenuButtons.forEach((btn,indx)=>{
+    btn.addEventListener('click',(e)=>{
+      cleanPushedButtonMarkup();
+      btn.classList.add('pushed');
+      puzzleButtons[indx].classList.add('pushed');
+      selectedPuzzle = indx;
+      initTimer();
+      secondDuration = 0;
+      const currScheme = getSchemeByName(e.target.innerText);
+      drawNonogram(currScheme)
+        
+    })
+  })
+
+  if(selectedPuzzle){
+    puzzleMenuButtons[selectedPuzzle].classList.add('pushed');
+    puzzleButtons[selectedPuzzle].classList.add('pushed');
+  }
+
+
+
+
+  return puzzleNameLayout;
 }
 
 //************modal section************//
@@ -147,51 +249,6 @@ const createModal = () => {
   })
   return modal;
 
-}
-
-
-// **********puzzle select buttons*****//
-
-
-
-const renderButtons = (buttons,dom=null) => {
-  let puzzleNameLayout
-  
-  puzzleNameLayout = document.querySelector('[data-puzzle-names]');
-  puzzleNameLayout.innerHTML = '';
-  if(dom){
-    puzzleNameLayout = dom
-  }
-
-
-  puzzleNameLayout.classList.add('flex','gap-4','m-4','flex-wrap');
-  puzzleNameLayout.classList.add('puzzle-names');
-
-  const puzzleButtons = buttons.map((x)=>{
-      const btn = document.createElement('button');
-      btn.classList.add('level-button','puzzle-button');
-      btn.textContent = x;
-      puzzleNameLayout.appendChild(btn);
-      return btn;
-  })
-  
-  puzzleButtons.forEach(btn=>{
-    btn.addEventListener('click',(e)=>{
-      puzzleButtons.forEach(lvlButton=>{
-        lvlButton.classList.remove('pushed')
-      })
-      btn.classList.add('pushed');
-      initTimer();
-      secondDuration = 0;
-      const currScheme = getSchemeByName(e.target.innerText);
-      drawNonogram(currScheme)
-        
-    })
-  })
-
-  puzzleNameLayout.setAttribute('data-puzzle-names','')
-
-  return puzzleNameLayout;
 }
 
 // ****************timer**********************//
@@ -239,6 +296,8 @@ const getRandomScheme = (level) => {
     levelArray = nonogramTemplates.slice();
     indx = getRandomNumber(nonogramTemplates.length);
   }
+
+  selectedPuzzle = 0;
   
   const headerNonogram = levelArray[indx].topClues;
   const bodyNonogram = levelArray[indx].body;
@@ -454,15 +513,20 @@ fetch('./templates.json')
       createModal();
 
       // *****level buttons*****//
+
+      const headerGame = document.createElement('div');
+      headerGame.classList.add('height-28')
       
       const levelLayout = renderLevelButtons()
-      document.body.appendChild(levelLayout);
+      headerGame.appendChild(levelLayout);
       
       // *****nonogram's name buttons*****//
 
       const puzzleNameLayout = document.createElement('div');
       puzzleNameLayout.setAttribute('data-puzzle-names','')
-      document.body.appendChild(puzzleNameLayout);
+      headerGame.appendChild(puzzleNameLayout);
+
+      document.body.append(headerGame);
 
       // *****timer*****//
 
