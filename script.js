@@ -34,8 +34,6 @@ const renderLevelButtons = () => {
     chevronRight.setAttribute('data-name',levelName);
     chevronRight.classList.add('menu-toggle');
 
-    
-
     const btn = document.createElement('button');
     btn.classList.add('level-button','root-button');
     
@@ -51,6 +49,18 @@ const renderLevelButtons = () => {
     return btn;
   })
 
+  const randomButton = document.createElement('button');
+  randomButton.classList.add('level-button','root-button');
+  randomButton.textContent = 'Random game'
+  randomButton.addEventListener('click',()=>{
+    const currScheme = getRandomScheme(null);
+    initTimer();
+    secondDuration = 0;
+    drawNonogram(currScheme);
+  })
+
+
+  navigation.append(randomButton)
   levelLayout.append(navigation)
   
 
@@ -71,13 +81,12 @@ const renderLevelButtons = () => {
       }else{
         document.querySelectorAll('[data-item-extended]').forEach(chevBtn=>chevBtn.setAttribute('data-item-extended','false'))
         chevronRight.setAttribute('data-item-extended','true');
-        const currScheme = getRandomeScheme(chevronRight.getAttribute('data-name'));
-        drawNonogram(currScheme)
+        const currScheme = getRandomScheme(chevronRight.getAttribute('data-name'));
         if(window.innerWidth < 769){
           const subMenuItems = btn.parentNode.querySelector('.submenu');
-          renderButtons(currScheme.buttonNames,currScheme.currNonogram,subMenuItems);
+          renderButtons(currScheme.buttonNames,subMenuItems);
         }else{
-          renderButtons(currScheme.buttonNames,currScheme.currNonogram);
+          renderButtons(currScheme.buttonNames);
         }
       }
 
@@ -131,8 +140,6 @@ const createModal = () => {
   modal.appendChild(modalContent);
   modal.appendChild(modalFooter);
   modalClose.addEventListener('click',() => {
-    const currScheme = getRandomeScheme("Easy");
-    drawNonogram(currScheme)
     initTimer();
     modal.close();
   })
@@ -145,7 +152,7 @@ const createModal = () => {
 
 
 
-const renderButtons = (buttons,pushedBtn,dom=null) => {
+const renderButtons = (buttons,dom=null) => {
   let puzzleNameLayout
   
   puzzleNameLayout = document.querySelector('[data-puzzle-names]');
@@ -158,13 +165,10 @@ const renderButtons = (buttons,pushedBtn,dom=null) => {
   puzzleNameLayout.classList.add('flex','gap-4','m-4');
   puzzleNameLayout.classList.add('puzzle-names');
 
-  const puzzleButtons = buttons.map((x,indx)=>{
+  const puzzleButtons = buttons.map((x)=>{
       const btn = document.createElement('button');
       btn.classList.add('level-button','puzzle-button');
       btn.textContent = x;
-      if(indx === pushedBtn){
-          btn.classList.add('pushed');
-      }
       puzzleNameLayout.appendChild(btn);
       return btn;
   })
@@ -172,14 +176,14 @@ const renderButtons = (buttons,pushedBtn,dom=null) => {
   puzzleButtons.forEach(btn=>{
     btn.addEventListener('click',(e)=>{
       puzzleButtons.forEach(lvlButton=>{
-            lvlButton.classList.remove('pushed')
-        })
-        btn.classList.add('pushed');
-  
-        const currScheme = getSchemeByName(e.target.innerText);
-        drawNonogram(currScheme)
+        lvlButton.classList.remove('pushed')
+      })
+      btn.classList.add('pushed');
+      initTimer();
+      secondDuration = 0;
+      const currScheme = getSchemeByName(e.target.innerText);
+      drawNonogram(currScheme)
         
-        // nonogramTemplates.filter(x=>)
     })
   })
 
@@ -194,6 +198,7 @@ let timer;
 let secondDuration;
 
 const initTimer = () => {
+  clearInterval(timer);
   const timerLayout = document.querySelector('[data-timer]');
   timerLayout.classList.add('timer')
   timerLayout.innerHTML = '00:00';
@@ -219,16 +224,24 @@ const getRandomNumber = (range) => {
   return Math.floor(Math.random() * range);
 }
 
-const getRandomeScheme = (level) => {
+const getRandomScheme = (level) => {
+  let indx = 0;
+  let levelArray = []
+  let buttonNames = []
 
-  const levelArray = nonogramTemplates.filter(x=> x.level === level);
-  const indx = getRandomNumber(levelArray.length);
-  const buttonNames = levelArray.map(x=> x.name);
+  if(level){
+    levelArray = nonogramTemplates.filter(x=> x.level === level);
+    indx = getRandomNumber(levelArray.length);
+    buttonNames = levelArray.map(x=> x.name);
+  }else{
+    levelArray = nonogramTemplates.slice();
+    indx = getRandomNumber(nonogramTemplates.length);
+  }
+  
   const headerNonogram = levelArray[indx].topClues;
   const bodyNonogram = levelArray[indx].body;
   const sideHeaderNonogram = levelArray[indx].sideClues;
-
-  return {header:headerNonogram,body:bodyNonogram,sideHeader:sideHeaderNonogram,buttonNames:buttonNames,currNonogram:indx};
+  return {header:headerNonogram,body:bodyNonogram,sideHeader:sideHeaderNonogram,buttonNames:buttonNames};
 
 }
 
@@ -435,7 +448,7 @@ fetch('./templates.json')
   .then((json) =>
   {
       nonogramTemplates = json
-      const currScheme = getRandomeScheme("Easy");
+      const currScheme = getRandomScheme("Easy");
       createModal();
 
       // *****level buttons*****//
