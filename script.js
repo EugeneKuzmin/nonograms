@@ -400,7 +400,10 @@ const drawNonogram = (scheme) => {
 
           cellElement.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-              cellElement.classList.remove('picked-dark')
+            if(!secondDuration){
+              startTimer();
+            }
+            cellElement.classList.remove('picked-dark')
             const fImg = cellElement.querySelector('.cross-pic')
             if(fImg){
               cellElement.innerHTML = ''
