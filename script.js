@@ -408,7 +408,7 @@ const drawNonogram = (scheme) => {
             }else{
               const crossCrs = document.createElement('img');
               crossCrs.classList.add('cross-pic');
-              crossCrs.src = './assets/cross-small.svg'
+              crossCrs.src = './assets/cross.svg'
               crossCrs.alt = 'crossed out'
               cellElement.append(crossCrs)
               
