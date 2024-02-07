@@ -316,6 +316,10 @@ body {
         display: none;
     }
 
+    .minor-button {
+        flex-direction: column;
+    }
+
     
 
 

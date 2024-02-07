@@ -72,9 +72,20 @@ const renderLevelButtons = () => {
     drawNonogram(currScheme);
   })
 
+  const resetButton = document.createElement('button');
+  resetButton.classList.add('level-button','root-button');
+  resetButton.textContent = 'Reset game'
+  resetButton.addEventListener('click',()=>{
+    initTimer();
+    secondDuration = 0;
+    drawNonogram(selectedPuzzle);
+  })
 
+
+  randomButtonContainer.append(resetButton)
   randomButtonContainer.append(randomButton)
   navigation.append(randomButtonContainer)
+  randomButtonContainer.classList.add('flex','gap-4','minor-button')
   levelLayout.append(navigation)
   
 
@@ -207,7 +218,6 @@ const renderButtons = (buttons,levelButton) => {
       cleanPushedButtonMarkup();
       btn.classList.add('pushed');
       puzzleButtons[indx].classList.add('pushed');
-      selectedPuzzle = indx;
       initTimer();
       secondDuration = 0;
       const currScheme = getSchemeByName(e.target.innerText);
@@ -302,7 +312,7 @@ const getRandomScheme = (level) => {
   const headerNonogram = levelArray[indx].topClues;
   const bodyNonogram = levelArray[indx].body;
   const sideHeaderNonogram = levelArray[indx].sideClues;
-  return {header:headerNonogram,body:bodyNonogram,sideHeader:sideHeaderNonogram,buttonNames:buttonNames};
+  return {header:headerNonogram,body:bodyNonogram,sideHeader:sideHeaderNonogram,buttonNames:buttonNames,name:levelArray[indx].name};
 
 }
 
@@ -313,7 +323,7 @@ const getSchemeByName = (name) => {
   const bodyNonogram = nonogram.body;
   const sideHeaderNonogram = nonogram.sideClues;
 
-  return {header:headerNonogram,body:bodyNonogram,sideHeader:sideHeaderNonogram};
+  return {header:headerNonogram,body:bodyNonogram,sideHeader:sideHeaderNonogram,name:name};
   
 
 }
@@ -374,6 +384,8 @@ const drawNonogram = (scheme) => {
   let bodyNonogram = scheme.body;
   let sideHeaderNonogram = scheme.sideHeader;
   let headerNonogram = scheme.header;
+
+  selectedPuzzle = scheme;
 
   const bodyLength = bodyNonogram[0].length;
   const sideLenght = sideHeaderNonogram[0].length;
