@@ -105,10 +105,9 @@ const renderLevelButtons = () => {
   randomButtonContainer.append(resetButton);
   randomButtonContainer.append(randomButton);
   randomButtonContainer.append(saveButton);
+  
   randomButtonContainer.append(restoreButton);
-  
   randomButtonContainer.append(resultsButton);
-  
   navigation.append(randomButtonContainer);
   randomButtonContainer.classList.add('flex','gap-4','minor-button');
   levelLayout.append(navigation);
@@ -122,8 +121,9 @@ const renderLevelButtons = () => {
 
       cleanPuzzleButtonsDom();
 
-      
-      chevronRight.setAttribute('data-item-extended','false');
+      if(chevExtended === 'true'){
+        
+        chevronRight.setAttribute('data-item-extended','false');
       }else{
         document.querySelectorAll('[data-item-extended]').forEach(chevBtn=>chevBtn.setAttribute('data-item-extended','false'))
         chevronRight.setAttribute('data-item-extended','true');
@@ -158,8 +158,9 @@ const renderLevelButtons = () => {
   menuButton.addEventListener('click',() => {
     let fl = menuButton.getAttribute('aria-expanded') === 'true'?false:true;
     setNavToggle(fl,navigation,menuButton)
-    setTimeout(() => {
-      cleanPuzzleButtonsDom();
+    if(!fl){
+      setTimeout(() => {
+        cleanPuzzleButtonsDom();
         document.querySelectorAll('[data-item-extended]').forEach(chevBtn=>chevBtn.setAttribute('data-item-extended','false'))
         
       }, 500);
@@ -248,8 +249,9 @@ const renderButtons = (buttons,levelButton) => {
     })
   })
 
-  puzzleMenuButtons[selectedPuzzle].classList.add('pushed');
-  puzzleButtons[selectedPuzzle].classList.add('pushed');
+  if(selectedPuzzle){
+    puzzleMenuButtons[selectedPuzzle].classList.add('pushed');
+    puzzleButtons[selectedPuzzle].classList.add('pushed');
   }
 
   return puzzleNameLayout;
@@ -293,8 +295,9 @@ const initTimer = () => {
 
 function startTimer(time = null){
   const timerLayout = document.querySelector('[data-timer]')
-   econdDuration = time
-  }lse{
+  if(time){
+    secondDuration = time
+  }else{
     secondDuration = 1;
   }
   timer = setInterval(()=>{
@@ -317,9 +320,12 @@ const saveGame = () => {
   for (const child of grid.children) {
     const currRow = child.getAttribute('data-position-row')
     const currCol = child.getAttribute('data-position-col')
-      currentNonogram.body[currRow][currCol] = 1;
-      curreNonogram.body[currRow][currCol] = -1;
-      }else
+    if(currRow && currCol){
+      if(child.classList.contains('picked-dark')){
+        currentNonogram.body[currRow][currCol] = 1;
+      }else if(child.firstChild&&child.firstChild.tagName === 'IMG'){
+        currentNonogram.body[currRow][currCol] = -1;
+      }else{
         currentNonogram.body[currRow][currCol] = 0
       }
     }
@@ -336,10 +342,14 @@ const restoreGame = () => {
   const grid = document.querySelector('.grid')
   for (const child of grid.children) {
     const currRow = child.getAttribute('data-position-row')
-  const currCol = child.getAttribute('data-position-col')
-      child.classList.add('picked-dark');
-      const cssCrs = document.createElement('img');
-        crossrs.classList.add('cross-pic');
+    const currCol = child.getAttribute('data-position-col')
+    if(currRow && currCol){
+
+      if(currentNonogram.body[currRow][currCol] === 1){
+        child.classList.add('picked-dark');
+      }else if(currentNonogram.body[currRow][currCol] === -1){
+        const crossCrs = document.createElement('img');
+        crossCrs.classList.add('cross-pic');
         crossCrs.src = './assets/cross.svg'
         crossCrs.alt = 'crossed out'
         child.append(crossCrs)
@@ -420,8 +430,9 @@ const getRandomScheme = (level) => {
   let levelArray = []
   let buttonNames = []
 
-  levelArray = nonogramTemplates.filter(x=> x.level === level);
-  indx = getRandomNumber(levelArray.length);
+  if(level){
+    levelArray = nonogramTemplates.filter(x=> x.level === level);
+    indx = getRandomNumber(levelArray.length);
     buttonNames = levelArray.map(x=> x.name);
   }else{
     levelArray = nonogramTemplates.slice();
@@ -450,8 +461,10 @@ const getSchemeByName = (name) => {
 }
 
 const drawBorderBottom = (rowIndx,bodyLength,cellElement) => {
-    cellElement.classList.add('border-bottom-2');
-  }else{
+  if((rowIndx + 1) !== bodyLength){
+    if((rowIndx + 1) % 5 ===0){
+      cellElement.classList.add('border-bottom-2');
+    }else{
       cellElement.classList.add('border-bottom-1');
     }
   }
@@ -459,8 +472,10 @@ const drawBorderBottom = (rowIndx,bodyLength,cellElement) => {
 }
 
 const drawBorderRight = (colIndx,bodyLength,cellElement) => {
-    cellElement.classList.add('border-right-2');
-  }else{
+  if( (colIndx + 1) !== bodyLength ){
+    if((colIndx + 1) % 5 === 0){
+      cellElement.classList.add('border-right-2');
+    }else{
       cellElement.classList.add('border-right-1');
     }
   }
@@ -468,20 +483,24 @@ const drawBorderRight = (colIndx,bodyLength,cellElement) => {
 }
 
 const drawHeaderBorderBottom = (rowIndx,headerLength,cellElement,isEmpty) => {
-  cellElement.classList.add('border-bottom-2');
-  
-  cellElement.classList.add('border-bottom-1');
-  
+  if((rowIndx + 1) === headerLength){
+    cellElement.classList.add('border-bottom-2');
+  }
+  if(isEmpty){
+    cellElement.classList.add('border-bottom-1');
+  }
   return cellElement
 }
 
 const drawHeaderBorderRight = (colIndx,sideLenght,cellElement,isEmpty) => {
 
-  cellElement.classList.add('border-right-2');
-  
+  if((colIndx + 1) === sideLenght){
+    cellElement.classList.add('border-right-2');
+  }
 
-  cellElement.classList.add('border-right-1');
-  
+  if(isEmpty){
+    cellElement.classList.add('border-right-1');
+  }
   return cellElement
 }
 
@@ -568,8 +587,9 @@ const drawNonogram = (scheme) => {
           cellElement.addEventListener('click',(e)=>
           {
             const fImg = cellElement.querySelector('.cross-pic')
-            cellElement.innerHTML = ''
-            
+            if(fImg){
+              cellElement.innerHTML = ''
+            }
             cellElement.classList.toggle('picked-dark')
             const cellRowValue = cellElement.getAttribute("data-position-row");
             const cellColValue = cellElement.getAttribute("data-position-col");
@@ -578,9 +598,13 @@ const drawNonogram = (scheme) => {
             hitSound.volume = .33;
             hitSound.play();
 
-            startTimer();
-            
-             stopTimer();
+            if(!secondDuration){
+              startTimer();
+            }
+
+            if(arraysEqual(gameZone,bodyNonogram)){
+              stopTimer();
+
               const hitSound = new Audio("./assets/tada-fanfare.mp3");
               hitSound.volume = .23;
               hitSound.play();
@@ -589,10 +613,12 @@ const drawNonogram = (scheme) => {
 
               let resultsTable = []
 
-              resultsTable = JSON.parse(localStorage.getItem('resultsTable'))
-              
-              resultsTable.push({name:scheme.name,level:scheme.level,time:secondDuration-1})
-              resultsTable = resultsTable.sort((a,b)=>a.time - b.time).slice();
+              if(localStorage.getItem('resultsTable')){
+                resultsTable = JSON.parse(localStorage.getItem('resultsTable'))
+              }
+              if(resultsTable.find(x=> !(x.time === (x.secondDuration-1) && x.name === scheme.name))){
+                resultsTable.push({name:scheme.name,level:scheme.level,time:secondDuration-1})
+                resultsTable = resultsTable.sort((a,b)=>a.time - b.time).slice();
                 resultsTable = resultsTable.slice(0,5);
                 localStorage.setItem('resultsTable',JSON.stringify(resultsTable))
 
@@ -607,14 +633,17 @@ const drawNonogram = (scheme) => {
 
           cellElement.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-            startTimer();
-            
+            if(!secondDuration){
+              startTimer();
+            }
             const hitSound = new Audio("./assets/glass1.mp3");
             hitSound.volume = .33;
             hitSound.play();
             cellElement.classList.remove('picked-dark')
-            const fImg = cellElement.queSelector('.cross-pic')
+            const fImg = cellElement.querySelector('.cross-pic')
+            if(fImg){
               cellElement.innerHTML = ''
+
             }else{
               const crossCrs = document.createElement('img');
               crossCrs.classList.add('cross-pic');
