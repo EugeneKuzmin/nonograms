@@ -624,6 +624,7 @@ const drawNonogram = (scheme) => {
                 resultsTable = resultsTable.sort((a,b)=>a.time - b.time).slice();
                 resultsTable = resultsTable.slice(0,5);
                 localStorage.setItem('resultsTable',JSON.stringify(resultsTable))
+                
               }
 
               secondDuration = 0;
