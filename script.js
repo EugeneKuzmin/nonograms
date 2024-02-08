@@ -619,13 +619,10 @@ const drawNonogram = (scheme) => {
                 localStorage.setItem('resultsTable',JSON.stringify(resultsTable))
               }
               
-              if(resultsTable.find(x=> !(x.time === (x.secondDuration-1) && x.name === scheme.name))){
-                resultsTable.push({name:scheme.name,level:scheme.level,time:secondDuration-1})
-                resultsTable = resultsTable.sort((a,b)=>a.time - b.time).slice();
-                resultsTable = resultsTable.slice(0,5);
-                localStorage.setItem('resultsTable',JSON.stringify(resultsTable))
-
-              }
+              resultsTable.push({name:scheme.name,level:scheme.level,time:secondDuration-1})
+              resultsTable = resultsTable.sort((a,b)=>a.time - b.time).slice();
+              resultsTable = resultsTable.slice(0,5);
+              localStorage.setItem('resultsTable',JSON.stringify(resultsTable))
 
               secondDuration = 0;
 
