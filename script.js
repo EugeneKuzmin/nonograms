@@ -95,11 +95,21 @@ const renderLevelButtons = () => {
     restoreGame();
   })
 
+  const resultsButton = document.createElement('button');
+  resultsButton.classList.add('level-button','root-button');
+  resultsButton.textContent = 'Results'
+  resultsButton.addEventListener('click',()=>{
+    showResults();
+  })
+
   randomButtonContainer.append(resetButton);
   randomButtonContainer.append(randomButton);
   randomButtonContainer.append(saveButton);
   if(localStorage.getItem('savedNonogram')){
     randomButtonContainer.append(restoreButton);
+  }
+  if(localStorage.getItem('resultsTable')){
+    randomButtonContainer.append(resultsButton);
   }
   navigation.append(randomButtonContainer);
   randomButtonContainer.classList.add('flex','gap-4','minor-button');
@@ -357,6 +367,61 @@ const restoreGame = () => {
 
 }
 
+// ***************results************************//
+
+const showResults = () => {
+  const resultsTable = JSON.parse(localStorage.getItem('resultsTable'));
+  const tableLayout = document.createElement('div');
+  const tableRow = document.createElement('div');
+
+  
+
+  const rowName = document.createElement('div');
+  rowName.innerText = 'Name';
+  rowName.classList.add('result-stroke');
+  const rowLevel = document.createElement('div');
+  rowLevel.innerText = 'Level';
+  rowLevel.classList.add('result-stroke')
+  const rowTime = document.createElement('div');
+  rowTime.innerText = 'Time (sec.)';
+
+  tableRow.classList.add('flex');
+  rowName.classList.add('result-header');
+  rowLevel.classList.add('result-header');
+  rowTime.classList.add('result-header');
+  tableRow.classList.add('result-header');
+  
+  tableRow.append(rowName);
+  tableRow.append(rowLevel);
+  tableRow.append(rowTime);
+  tableLayout.append(tableRow)
+  resultsTable.forEach(row => {
+    const tableRow = document.createElement('div');
+    const rowName = document.createElement('div');
+    rowName.innerText = row.name;
+    const rowLevel = document.createElement('div');
+    rowLevel.innerText = row.level;
+    const rowTime = document.createElement('div');
+    rowTime.innerText = row.time;
+    tableRow.classList.add('flex');
+    rowName.classList.add('result-stroke');
+    rowLevel.classList.add('result-stroke');
+    rowTime.classList.add('result-stroke');
+    tableRow.classList.add('row-clr');
+    
+    tableRow.append(rowName);
+    tableRow.append(rowLevel);
+    tableRow.append(rowTime);
+    tableLayout.append(tableRow)
+  }
+  )
+  const modalContent = modal.querySelector('[data-modal]');
+  modalContent.innerHTML = '';
+  modalContent.appendChild(tableLayout)
+  modal.showModal();
+
+}
+
 // ****************nonogram**********************//
 
 const getRandomNumber = (range) => {
@@ -382,7 +447,7 @@ const getRandomScheme = (level) => {
   const headerNonogram = levelArray[indx].topClues;
   const bodyNonogram = levelArray[indx].body;
   const sideHeaderNonogram = levelArray[indx].sideClues;
-  return {header:headerNonogram,body:bodyNonogram,sideHeader:sideHeaderNonogram,buttonNames:buttonNames,name:levelArray[indx].name};
+  return {header:headerNonogram,body:bodyNonogram,sideHeader:sideHeaderNonogram,buttonNames:buttonNames,name:levelArray[indx].name,level:nonogramTemplates.level};
 
 }
 
@@ -393,7 +458,7 @@ const getSchemeByName = (name) => {
   const bodyNonogram = nonogram.body;
   const sideHeaderNonogram = nonogram.sideClues;
 
-  return {header:headerNonogram,body:bodyNonogram,sideHeader:sideHeaderNonogram,name:name};
+  return {header:headerNonogram,body:bodyNonogram,sideHeader:sideHeaderNonogram,name:name,level:nonogram.level};
   
 
 }
@@ -544,8 +609,21 @@ const drawNonogram = (scheme) => {
               stopTimer();
 
               modal.querySelector('[data-modal]').innerText = `Great! You have solved the nonogram in ${secondDuration-1} seconds!`
+
+              let resultsTable = []
+
+              if(localStorage.getItem('resultsTable')){
+                resultsTable = JSON.parse(localStorage.getItem('resultsTable'))
+              }
+              if(resultsTable.find(x=> !(x.time === (x.secondDuration-1) && x.name === scheme.name))){
+                resultsTable.push({name:scheme.name,level:scheme.level,time:secondDuration-1})
+                resultsTable = resultsTable.sort((a,b)=>a.time - b.time).slice();
+                resultsTable = resultsTable.slice(0,5);
+                localStorage.setItem('resultsTable',JSON.stringify(resultsTable))
+              }
+
               secondDuration = 0;
-              
+
               modal.showModal();
             }
             
