@@ -624,7 +624,7 @@ const drawNonogram = (scheme) => {
                 resultsTable = resultsTable.sort((a,b)=>a.time - b.time).slice();
                 resultsTable = resultsTable.slice(0,5);
                 localStorage.setItem('resultsTable',JSON.stringify(resultsTable))
-                
+
               }
 
               secondDuration = 0;
@@ -639,7 +639,7 @@ const drawNonogram = (scheme) => {
             if(!secondDuration){
               startTimer();
             }
-            const hitSound = new Audio("./assets/glass.mp3");
+            const hitSound = new Audio("./assets/glass1.mp3");
             hitSound.volume = .33;
             hitSound.play();
             cellElement.classList.remove('picked-dark')
