@@ -608,6 +608,10 @@ const drawNonogram = (scheme) => {
             if(arraysEqual(gameZone,bodyNonogram)){
               stopTimer();
 
+              const hitSound = new Audio("./assets/tada-fanfare.mp3");
+              hitSound.volume = .23;
+              hitSound.play();
+
               modal.querySelector('[data-modal]').innerText = `Great! You have solved the nonogram in ${secondDuration-1} seconds!`
 
               let resultsTable = []
@@ -634,6 +638,9 @@ const drawNonogram = (scheme) => {
             if(!secondDuration){
               startTimer();
             }
+            const hitSound = new Audio("./assets/glass.mp3");
+            hitSound.volume = .33;
+            hitSound.play();
             cellElement.classList.remove('picked-dark')
             const fImg = cellElement.querySelector('.cross-pic')
             if(fImg){
