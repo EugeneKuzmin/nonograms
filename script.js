@@ -81,13 +81,29 @@ const renderLevelButtons = () => {
     drawNonogram(selectedPuzzle);
   })
 
+  const saveButton = document.createElement('button');
+  saveButton.classList.add('level-button','root-button');
+  saveButton.textContent = 'Save'
+  saveButton.addEventListener('click',()=>{
+    saveGame();
+  })
 
-  randomButtonContainer.append(resetButton)
-  randomButtonContainer.append(randomButton)
-  navigation.append(randomButtonContainer)
-  randomButtonContainer.classList.add('flex','gap-4','minor-button')
-  levelLayout.append(navigation)
-  
+  const restoreButton = document.createElement('button');
+  restoreButton.classList.add('level-button','root-button');
+  restoreButton.textContent = 'Restore game'
+  restoreButton.addEventListener('click',()=>{
+    restoreGame();
+  })
+
+  randomButtonContainer.append(resetButton);
+  randomButtonContainer.append(randomButton);
+  randomButtonContainer.append(saveButton);
+  if(localStorage.getItem('savedNonogram')){
+    randomButtonContainer.append(restoreButton);
+  }
+  navigation.append(randomButtonContainer);
+  randomButtonContainer.classList.add('flex','gap-4','minor-button');
+  levelLayout.append(navigation);
 
   levelButtons.forEach(btn=>{
     btn.addEventListener('click',(e)=>{
@@ -231,9 +247,6 @@ const renderButtons = (buttons,levelButton) => {
     puzzleButtons[selectedPuzzle].classList.add('pushed');
   }
 
-
-
-
   return puzzleNameLayout;
 }
 
@@ -273,9 +286,13 @@ const initTimer = () => {
   timerLayout.innerHTML = '00:00';
 }
 
-function startTimer(){
+function startTimer(time = null){
   const timerLayout = document.querySelector('[data-timer]')
-  secondDuration = 1;
+  if(time){
+    secondDuration = time
+  }else{
+    secondDuration = 1;
+  }
   timer = setInterval(()=>{
     timerLayout.innerHTML = '00:'+secondDuration;
     timerLayout.innerHTML = `0${Math.floor(secondDuration / 60)}`.slice(-2) + ":" + `0${Math.floor(secondDuration % 60)}`.slice(-2);
@@ -285,6 +302,59 @@ function startTimer(){
 
 function stopTimer(){
   clearInterval(timer);
+}
+
+// ****************save-restore******************//
+
+const saveGame = () => {
+  const currentNonogram = nonogramTemplates.find(x=> x.name === selectedPuzzle.name );
+  console.log('currentNonogram',currentNonogram);
+  const grid = document.querySelector('.grid')
+  for (const child of grid.children) {
+    const currRow = child.getAttribute('data-position-row')
+    const currCol = child.getAttribute('data-position-col')
+    if(currRow && currCol){
+      if(child.classList.contains('picked-dark')){
+        currentNonogram.body[currRow][currCol] = 1;
+      }else if(child.firstChild&&child.firstChild.tagName === 'IMG'){
+        currentNonogram.body[currRow][currCol] = -1;
+      }else{
+        currentNonogram.body[currRow][currCol] = 0
+      }
+    }
+  }
+  const scheme = getSchemeByName(currentNonogram.name);
+  scheme.secondDuration = secondDuration;
+  localStorage.setItem('savedNonogram',JSON.stringify(scheme));
+}
+
+const restoreGame = () => {
+  currentNonogram = JSON.parse(localStorage.getItem('savedNonogram'));
+  drawNonogram(currentNonogram)
+
+  const grid = document.querySelector('.grid')
+  for (const child of grid.children) {
+    const currRow = child.getAttribute('data-position-row')
+    const currCol = child.getAttribute('data-position-col')
+    if(currRow && currCol){
+
+      if(currentNonogram.body[currRow][currCol] === 1){
+        child.classList.add('picked-dark');
+      }else if(currentNonogram.body[currRow][currCol] === -1){
+        const crossCrs = document.createElement('img');
+        crossCrs.classList.add('cross-pic');
+        crossCrs.src = './assets/cross.svg'
+        crossCrs.alt = 'crossed out'
+        child.append(crossCrs)
+        child.classList.toggle('crossed-cell');
+      }
+    }
+  }
+  const timerLayout = document.querySelector('[data-timer]')
+  timerLayout.innerHTML = `0${Math.floor(currentNonogram.secondDuration / 60)}`.slice(-2) + ":" + `0${Math.floor(currentNonogram.secondDuration % 60)}`.slice(-2);
+
+  startTimer(currentNonogram.secondDuration);
+
 }
 
 // ****************nonogram**********************//
@@ -427,7 +497,6 @@ const drawNonogram = (scheme) => {
 
           gridLayout.appendChild(cellElement)
       });
-  
       }
   )
   
@@ -467,8 +536,6 @@ const drawNonogram = (scheme) => {
             hitSound.volume = .33;
             hitSound.play();
 
-            
-
             if(!secondDuration){
               startTimer();
             }
@@ -500,7 +567,6 @@ const drawNonogram = (scheme) => {
               crossCrs.src = './assets/cross.svg'
               crossCrs.alt = 'crossed out'
               cellElement.append(crossCrs)
-              
               cellElement.classList.toggle('crossed-cell');
 
             }
@@ -513,8 +579,9 @@ const drawNonogram = (scheme) => {
   );
 
   return gridLayout;
-
 }
+
+// ************ main body render layout********//
 
 fetch('./templates.json')
   .then((response) => response.json())
