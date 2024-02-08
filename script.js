@@ -105,12 +105,10 @@ const renderLevelButtons = () => {
   randomButtonContainer.append(resetButton);
   randomButtonContainer.append(randomButton);
   randomButtonContainer.append(saveButton);
-  if(localStorage.getItem('savedNonogram')){
-    randomButtonContainer.append(restoreButton);
-  }
-  if(localStorage.getItem('resultsTable')){
-    randomButtonContainer.append(resultsButton);
-  }
+  randomButtonContainer.append(restoreButton);
+  
+  randomButtonContainer.append(resultsButton);
+  
   navigation.append(randomButtonContainer);
   randomButtonContainer.classList.add('flex','gap-4','minor-button');
   levelLayout.append(navigation);
@@ -124,9 +122,8 @@ const renderLevelButtons = () => {
 
       cleanPuzzleButtonsDom();
 
-      if(chevExtended === 'true'){
-        
-        chevronRight.setAttribute('data-item-extended','false');
+      
+      chevronRight.setAttribute('data-item-extended','false');
       }else{
         document.querySelectorAll('[data-item-extended]').forEach(chevBtn=>chevBtn.setAttribute('data-item-extended','false'))
         chevronRight.setAttribute('data-item-extended','true');
@@ -161,9 +158,8 @@ const renderLevelButtons = () => {
   menuButton.addEventListener('click',() => {
     let fl = menuButton.getAttribute('aria-expanded') === 'true'?false:true;
     setNavToggle(fl,navigation,menuButton)
-    if(!fl){
-      setTimeout(() => {
-        cleanPuzzleButtonsDom();
+    setTimeout(() => {
+      cleanPuzzleButtonsDom();
         document.querySelectorAll('[data-item-extended]').forEach(chevBtn=>chevBtn.setAttribute('data-item-extended','false'))
         
       }, 500);
@@ -252,9 +248,8 @@ const renderButtons = (buttons,levelButton) => {
     })
   })
 
-  if(selectedPuzzle){
-    puzzleMenuButtons[selectedPuzzle].classList.add('pushed');
-    puzzleButtons[selectedPuzzle].classList.add('pushed');
+  puzzleMenuButtons[selectedPuzzle].classList.add('pushed');
+  puzzleButtons[selectedPuzzle].classList.add('pushed');
   }
 
   return puzzleNameLayout;
@@ -298,9 +293,8 @@ const initTimer = () => {
 
 function startTimer(time = null){
   const timerLayout = document.querySelector('[data-timer]')
-  if(time){
-    secondDuration = time
-  }else{
+   econdDuration = time
+  }lse{
     secondDuration = 1;
   }
   timer = setInterval(()=>{
@@ -323,12 +317,9 @@ const saveGame = () => {
   for (const child of grid.children) {
     const currRow = child.getAttribute('data-position-row')
     const currCol = child.getAttribute('data-position-col')
-    if(currRow && currCol){
-      if(child.classList.contains('picked-dark')){
-        currentNonogram.body[currRow][currCol] = 1;
-      }else if(child.firstChild&&child.firstChild.tagName === 'IMG'){
-        currentNonogram.body[currRow][currCol] = -1;
-      }else{
+      currentNonogram.body[currRow][currCol] = 1;
+      curreNonogram.body[currRow][currCol] = -1;
+      }else
         currentNonogram.body[currRow][currCol] = 0
       }
     }
@@ -345,14 +336,10 @@ const restoreGame = () => {
   const grid = document.querySelector('.grid')
   for (const child of grid.children) {
     const currRow = child.getAttribute('data-position-row')
-    const currCol = child.getAttribute('data-position-col')
-    if(currRow && currCol){
-
-      if(currentNonogram.body[currRow][currCol] === 1){
-        child.classList.add('picked-dark');
-      }else if(currentNonogram.body[currRow][currCol] === -1){
-        const crossCrs = document.createElement('img');
-        crossCrs.classList.add('cross-pic');
+  const currCol = child.getAttribute('data-position-col')
+      child.classList.add('picked-dark');
+      const cssCrs = document.createElement('img');
+        crossrs.classList.add('cross-pic');
         crossCrs.src = './assets/cross.svg'
         crossCrs.alt = 'crossed out'
         child.append(crossCrs)
@@ -433,9 +420,8 @@ const getRandomScheme = (level) => {
   let levelArray = []
   let buttonNames = []
 
-  if(level){
-    levelArray = nonogramTemplates.filter(x=> x.level === level);
-    indx = getRandomNumber(levelArray.length);
+  levelArray = nonogramTemplates.filter(x=> x.level === level);
+  indx = getRandomNumber(levelArray.length);
     buttonNames = levelArray.map(x=> x.name);
   }else{
     levelArray = nonogramTemplates.slice();
@@ -464,10 +450,8 @@ const getSchemeByName = (name) => {
 }
 
 const drawBorderBottom = (rowIndx,bodyLength,cellElement) => {
-  if((rowIndx + 1) !== bodyLength){
-    if((rowIndx + 1) % 5 ===0){
-      cellElement.classList.add('border-bottom-2');
-    }else{
+    cellElement.classList.add('border-bottom-2');
+  }else{
       cellElement.classList.add('border-bottom-1');
     }
   }
@@ -475,10 +459,8 @@ const drawBorderBottom = (rowIndx,bodyLength,cellElement) => {
 }
 
 const drawBorderRight = (colIndx,bodyLength,cellElement) => {
-  if( (colIndx + 1) !== bodyLength ){
-    if((colIndx + 1) % 5 === 0){
-      cellElement.classList.add('border-right-2');
-    }else{
+    cellElement.classList.add('border-right-2');
+  }else{
       cellElement.classList.add('border-right-1');
     }
   }
@@ -486,24 +468,20 @@ const drawBorderRight = (colIndx,bodyLength,cellElement) => {
 }
 
 const drawHeaderBorderBottom = (rowIndx,headerLength,cellElement,isEmpty) => {
-  if((rowIndx + 1) === headerLength){
-    cellElement.classList.add('border-bottom-2');
-  }
-  if(isEmpty){
-    cellElement.classList.add('border-bottom-1');
-  }
+  cellElement.classList.add('border-bottom-2');
+  
+  cellElement.classList.add('border-bottom-1');
+  
   return cellElement
 }
 
 const drawHeaderBorderRight = (colIndx,sideLenght,cellElement,isEmpty) => {
 
-  if((colIndx + 1) === sideLenght){
-    cellElement.classList.add('border-right-2');
-  }
+  cellElement.classList.add('border-right-2');
+  
 
-  if(isEmpty){
-    cellElement.classList.add('border-right-1');
-  }
+  cellElement.classList.add('border-right-1');
+  
   return cellElement
 }
 
@@ -590,9 +568,8 @@ const drawNonogram = (scheme) => {
           cellElement.addEventListener('click',(e)=>
           {
             const fImg = cellElement.querySelector('.cross-pic')
-            if(fImg){
-              cellElement.innerHTML = ''
-            }
+            cellElement.innerHTML = ''
+            
             cellElement.classList.toggle('picked-dark')
             const cellRowValue = cellElement.getAttribute("data-position-row");
             const cellColValue = cellElement.getAttribute("data-position-col");
@@ -601,13 +578,9 @@ const drawNonogram = (scheme) => {
             hitSound.volume = .33;
             hitSound.play();
 
-            if(!secondDuration){
-              startTimer();
-            }
-
-            if(arraysEqual(gameZone,bodyNonogram)){
-              stopTimer();
-
+            startTimer();
+            
+             stopTimer();
               const hitSound = new Audio("./assets/tada-fanfare.mp3");
               hitSound.volume = .23;
               hitSound.play();
@@ -616,12 +589,10 @@ const drawNonogram = (scheme) => {
 
               let resultsTable = []
 
-              if(localStorage.getItem('resultsTable')){
-                resultsTable = JSON.parse(localStorage.getItem('resultsTable'))
-              }
-              if(resultsTable.find(x=> !(x.time === (x.secondDuration-1) && x.name === scheme.name))){
-                resultsTable.push({name:scheme.name,level:scheme.level,time:secondDuration-1})
-                resultsTable = resultsTable.sort((a,b)=>a.time - b.time).slice();
+              resultsTable = JSON.parse(localStorage.getItem('resultsTable'))
+              
+              resultsTable.push({name:scheme.name,level:scheme.level,time:secondDuration-1})
+              resultsTable = resultsTable.sort((a,b)=>a.time - b.time).slice();
                 resultsTable = resultsTable.slice(0,5);
                 localStorage.setItem('resultsTable',JSON.stringify(resultsTable))
 
@@ -636,17 +607,14 @@ const drawNonogram = (scheme) => {
 
           cellElement.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-            if(!secondDuration){
-              startTimer();
-            }
+            startTimer();
+            
             const hitSound = new Audio("./assets/glass1.mp3");
             hitSound.volume = .33;
             hitSound.play();
             cellElement.classList.remove('picked-dark')
-            const fImg = cellElement.querySelector('.cross-pic')
-            if(fImg){
+            const fImg = cellElement.queSelector('.cross-pic')
               cellElement.innerHTML = ''
-
             }else{
               const crossCrs = document.createElement('img');
               crossCrs.classList.add('cross-pic');
